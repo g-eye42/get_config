@@ -1,0 +1,57 @@
+#! /bin/sh
+
+clean()
+{
+    if [ -r Makefile ]; then
+	make clean
+    fi
+    rm -f Makefile.in Makefile configure
+    rm -f src/Makefile.in src/Makefile /src/name
+}
+
+wipeout()
+{
+	clean
+	rm -rf aclocal.m4 config.guess config.sub install-sh missing \
+	       mkinstalldirs config.log config.status configure \
+	       libtool ltmain.sh config.h stamp-h stamp-h1 stamp-h.in \
+	       config.h.in depcomp m4 compile
+	rm -f *~ src/*~ 
+	rm -rf autom4te.cache src/.deps
+	rm -rf *.tar.gz
+}
+
+all()
+{
+	clean
+	echo "Clean done"
+	aclocal
+	echo "acloal done"
+	autoheader
+	echo "autoheader done"
+	case `uname` in Darwin*) glibtoolize --force ;; 
+	    *) libtoolize --force ;; esac
+#	libtoolize --force
+	echo "libtoolize done"
+	automake --add-missing
+	echo "automake done"
+	autoconf
+	echo "autoconf done"
+}
+
+case "$1" in
+	clean)
+		clean
+		;;
+	wipeout)
+		wipeout
+		;;
+	all)
+		all
+		;;
+	*)
+		echo "Usage: .strap-auto {all|clean|wipeout}"
+		exit 1
+		;;
+esac
+exit 0
